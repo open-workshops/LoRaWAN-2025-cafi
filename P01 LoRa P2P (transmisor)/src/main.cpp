@@ -6,26 +6,26 @@
 #include <Arduino.h>
 #include <RadioLib.h>
 
-// Transceptor LoRa conectado en la placa Heltec WiFi LoRa32 V3 en los pines:
-// NSS pin:   SS = 8
+// Transceptor LoRa en la placa Heltec WiFi LoRa32 V3:
+// NSS pin:         SS = 8
 // DIO0 pin (irq):  DIO0 = 14
-// RESET pin: RST_LoRa = 12
-// DIO1 pin:  DIO1 = 13
-SX1276 radio = new Module(SS, DIO0, RST_LoRa, 13);
+// RESET pin:       RST_LoRa = 12
+// DIO1 pin:        BUSY_LoRa = 13
+SX1262 radio = new Module(SS, DIO0, RST_LoRa, BUSY_LoRa);
 
 void setup()
 {
   Serial.begin(115200);
-  delay(4000); // esperamos a que el minitor serial este listo
+  delay(10000); // Damos tiempo a abrir la terminal serie
 
-  // inicializar SX1276 con los parametros por defecto
+  // Inicializar SX1262 con los parametros por defecto
   Serial.print("Inicializando... ");
-
-  // Freq: 868.0
-  // Bandwidth: 125
-  // Spreading factor: 7
+  // Freq:              868.0
+  // Bandwidth:         125
+  // Spreading factor:   7
   int state = radio.begin(868.0, 125, 7);
 
+  // Gestión de errores
   if (state == RADIOLIB_ERR_NONE)
   {
     Serial.println("OK!");
@@ -41,11 +41,10 @@ void setup()
 void loop()
 {
   Serial.print("Transmitiendo paquete... ");
-
   String datos = "ESCRIBE AQUI TU NOMBRE";
   int state = radio.transmit(datos);
 
-
+  // Gestión de errores
   if (state == RADIOLIB_ERR_NONE)
   {
     Serial.println(" ENVIADO!");
@@ -56,6 +55,6 @@ void loop()
     Serial.println(state);
   }
 
-  // esperamos 5 segundos y transmitimos de nuevo
+  // Esperamos 15 segundos y transmitimos de nuevo
   delay(15000);
 }
