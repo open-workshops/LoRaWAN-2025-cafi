@@ -101,37 +101,39 @@ bool checkGPSFix(void)
       gps.altitude.age() < 2000 )
   {
     Serial.println("Valid GPS Fix.");
-    /*
+    
     display.setFont(ArialMT_Plain_10);
     display.setColor(BLACK);display.fillRect(0, 21, 54, 10);display.display();display.setColor(WHITE);
     display.drawString(0, 17, "GPS: FIX");
-    display.display();*/
+    display.display();
+    
     return true;
   }
   else
   {
-     Serial.println("No GPS Fix.");
-     /*
-     display.setFont(ArialMT_Plain_10);
-     display.setColor(BLACK);display.fillRect(0, 21, 54, 10);display.display();display.setColor(WHITE);
-     display.drawString(0, 17, "GPS: NO");
-     display.display();
+    Serial.println("No GPS Fix.");
+   
+    display.setFont(ArialMT_Plain_10);
+    display.setColor(BLACK);display.fillRect(0, 21, 54, 10);display.display();display.setColor(WHITE);
+    display.drawString(0, 17, "GPS: NO");
+    display.display();
 
-     sprintf(t, "location valid: %i" , tGps.location.isValid());
-     Serial.println(t);
-     sprintf(t, "location age: %i" , tGps.location.age());
-     Serial.println(t);
-     sprintf(t, "hdop valid: %i" , tGps.hdop.isValid());
-     Serial.println(t);
-     sprintf(t, "hdop age: %i" , tGps.hdop.age());
-     Serial.println(t);
-     sprintf(t, "hdop: %i" , tGps.hdop.value());
-     Serial.println(t);
-     sprintf(t, "altitude valid: %i" , tGps.altitude.isValid());
-     Serial.println(t);
-     sprintf(t, "altitude age: %i" , tGps.altitude.age());
-     Serial.println(t);
-     */
+    char t[32];
+    sprintf(t, "location valid: %i" , gps.location.isValid());
+    Serial.println(t);
+    sprintf(t, "location age: %i" , gps.location.age());
+    Serial.println(t);
+    sprintf(t, "hdop valid: %i" , gps.hdop.isValid());
+    Serial.println(t);
+    sprintf(t, "hdop age: %i" , gps.hdop.age());
+    Serial.println(t);
+    sprintf(t, "hdop: %i" , gps.hdop.value());
+    Serial.println(t);
+    sprintf(t, "altitude valid: %i" , gps.altitude.isValid());
+    Serial.println(t);
+    sprintf(t, "altitude age: %i" , gps.altitude.age());
+    Serial.println(t);
+    Serial.println();
 
     return false;
   }
