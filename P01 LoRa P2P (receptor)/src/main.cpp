@@ -6,26 +6,26 @@
 #include <Arduino.h>
 #include <RadioLib.h>
 
-// Transceptor LoRa conectado en la placa Heltec WiFi LoRa32 V3 en los pines:
-// NSS pin:   SS = 8
+// Transceptor LoRa en la placa Heltec WiFi LoRa32 V3:
+// NSS pin:         SS = 8
 // DIO0 pin (irq):  DIO0 = 14
-// RESET pin: RST_LoRa = 12
-// DIO1 pin:  DIO1 = 13
-SX1276 radio = new Module(SS, DIO0, RST_LoRa, 13);
+// RESET pin:       RST_LoRa = 12
+// DIO1 pin:        BUSY_LoRa = 13
+SX1262 radio = new Module(SS, DIO0, RST_LoRa, BUSY_LoRa);
 
 void setup()
 {
   Serial.begin(115200);
-  delay(4000); // esperamos a que el monitor serial este listo
-  
-  // inicializar SX1276 con los parametros por defecto
-  Serial.print("Inicializando... ");
+  delay(10000); // Damos tiempo a abrir la terminal serie
 
-  // Freq: 868.0
-  // Bandwidth: 125
-  // Spreading factor: 7
+  // Inicializar SX1262 con los parametros por defecto
+  Serial.print("Inicializando... ");
+  // Freq:              868.0
+  // Bandwidth:         125
+  // Spreading factor:   7
   int state = radio.begin(868.0, 125, 7);
 
+  // Gestión de errores
   if (state == RADIOLIB_ERR_NONE)
   {
     Serial.println("OK!");
@@ -43,28 +43,27 @@ void loop() {
   String str;
   int state = radio.receive(str);
 
+  // Gestión de errores
   if (state == RADIOLIB_ERR_NONE)
   {
     Serial.println("Recibido!");
 
-    Serial.print("Data:\t\t\t");
+    Serial.print("Data:\t");
     Serial.println(str);
 
-    Serial.print("RSSI:\t\t\t");
+    Serial.print("RSSI:\t");
     Serial.print(radio.getRSSI());
     Serial.println(" dBm");
 
-    Serial.print("SNR:\t\t\t");
+    Serial.print("SNR:\t");
     Serial.print(radio.getSNR());
     Serial.println(" dB");
 
-    Serial.print("Escuchando a la espera de una transmisión ... ");
+    Serial.print("Escuchando a la espera de una transmisión ... "); 
   } 
   else if (state != RADIOLIB_ERR_RX_TIMEOUT)
   {
     Serial.print("Error, codigo: ");
     Serial.println(state);
-
-    Serial.print("Escuchando a la espera de una transmisión ... ");
   }
 }
