@@ -39,11 +39,12 @@ LoRaWANNode node(&radio, &Region);
 void setup()
 {
   Serial.begin(115200);
-  Serial.println("Iniciando");
+  delay(20000);
+  Serial.println("Iniciando LoRaWAN ABP");
 
   radio.begin();
 
-  node.beginABP(devAddr, fNwkSIntKey, sNwkSIntKey, nwkSEncKey, appSKey);
+  node.beginOTAA(devAddr, fNwkSIntKey, sNwkSIntKey, nwkSEncKey, appSKey);
 
   node.activateABP();
 }
@@ -51,9 +52,11 @@ void setup()
 void loop()
 {
   uint8_t *payload = (uint8_t *)"hola ABP";
-  node.sendReceive(payload, 8);
 
-  Serial.println("Enviando uplink...");
+  Serial.println("Enviando uplink.");
+
+  node.sendReceive(payload, 8);
+  
   delay(15000);
 }
 
@@ -64,10 +67,64 @@ void loop()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
-
-  uint8_t downlinkPayload[10];  
-  size_t  downlinkSize; 
-  node.sendReceive(payload, 8, 1, downlinkPayload, &downlinkSize);
-
+  //nonces
+  #include <Preferences.h>
+  Preferences store;
 */
+
+void restoreNounce()
+{
+  store.begin("radiolib");
+  if (store.isKey("nonces")) 
+  {
+    uint8_t buffer[RADIOLIB_LORAWAN_NONCES_BUF_SIZE];
+    store.getBytes("nonces", buffer, RADIOLIB_LORAWAN_NONCES_BUF_SIZE);
+    node.setBufferNonces(buffer);
+    uint16_t devNonces = ((uint16_t)buffer[9])<<8 | buffer[8];
+    uint32_t joinNonces = ((uint32_t)buffer[12])<<16 | ((uint32_t)buffer[11])<<8 | buffer[10];
+    Serial.println("devNonces:" + String(devNonces) + " joinNonces:"+ String(joinNonces));
+  }            
+}
+
+void saveNounce()
+{
+  uint8_t buffer[RADIOLIB_LORAWAN_NONCES_BUF_SIZE];
+  uint8_t *persist = node.getBufferNonces();
+  memcpy(buffer, persist, RADIOLIB_LORAWAN_NONCES_BUF_SIZE);
+  store.putBytes("nonces", buffer, RADIOLIB_LORAWAN_NONCES_BUF_SIZE);
+}
