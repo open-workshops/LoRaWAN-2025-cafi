@@ -25,6 +25,9 @@ void setup()
   // Spreading factor:   7
   int state = radio.begin(868.0, 125, 7);
 
+  // Reducimos potencia a 0dBm (1mW) pruebas de corta distancia
+  radio.setOutputPower(0);
+
   // Gestión de errores
   if (state == RADIOLIB_ERR_NONE)
   {
