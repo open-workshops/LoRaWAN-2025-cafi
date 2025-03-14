@@ -79,11 +79,11 @@ void loop()
 
   if (state > 0) // state = 1 downlink en RX1, state = 2 downlink en RX2
   {
-    Serial.print(">Recibido DOWNLINK con " + String(downlinkSize) + " bytes en RX" + String(state));
+    Serial.print(">Recibido DOWNLINK con " + String(downlinkSize) + " bytes en RX" + String(state) + ":");
     for(int i = 0; i<downlinkSize; i++)
     {
       Serial.print(" ");
-      Serial.print(downlinkPayload[i],HEX);
+      Serial.print(downlinkPayload[i], HEX);
     } 
     Serial.println();
   }  
