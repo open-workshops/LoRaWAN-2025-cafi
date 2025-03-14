@@ -44,7 +44,7 @@ void setup()
 
   radio.begin();
 
-  node.beginOTAA(devAddr, fNwkSIntKey, sNwkSIntKey, nwkSEncKey, appSKey);
+  node.beginABP(devAddr, fNwkSIntKey, sNwkSIntKey, nwkSEncKey, appSKey);
 
   node.activateABP();
 }
@@ -96,16 +96,11 @@ void loop()
 
 
 
-
-
-
-
-
 /*
-  //nonces
-  #include <Preferences.h>
-  Preferences store;
-*/
+//nonces
+#include <Preferences.h>
+Preferences store;
+
 
 void restoreNounce()
 {
@@ -128,3 +123,5 @@ void saveNounce()
   memcpy(buffer, persist, RADIOLIB_LORAWAN_NONCES_BUF_SIZE);
   store.putBytes("nonces", buffer, RADIOLIB_LORAWAN_NONCES_BUF_SIZE);
 }
+
+*/
