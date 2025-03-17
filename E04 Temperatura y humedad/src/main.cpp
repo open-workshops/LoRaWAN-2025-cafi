@@ -19,19 +19,18 @@
 
 SHT30 sht;
 
-int SDA_PIN = 41;
-int SCL_PIN = 42;
-
-void setup() {
+void setup()
+{
   Serial.begin(115200);
-  delay(1000);
+  delay(20000);
 
   // Inicialización del sensor SHT30
-  Wire.begin(SDA_PIN, SCL_PIN, 100000U);
-  sht.begin(0x44);
+  Wire.begin(SDA, SCL, 100000U);
+  sht.begin();
 }
 
-void loop() {
+void loop()
+{
   if (!sht.read())  // solicitamos medición de temperatura y humedad al sensor
   {
     // si ha habido un error, no continuamos
@@ -40,12 +39,15 @@ void loop() {
     delay(10000);
   }
 
+  float temperatura = sht.getTemperature();
+  float humedad = sht.getHumidity();
+
   Serial.print("Temperatura: ");
-  Serial.print(sht.getTemperature());
+  Serial.print(temperatura);
   Serial.println("º C");
 
   Serial.print("Humedad: ");
-  Serial.print(sht.getHumidity());
+  Serial.print(humedad);
   Serial.println(" %");
   
   Serial.println();

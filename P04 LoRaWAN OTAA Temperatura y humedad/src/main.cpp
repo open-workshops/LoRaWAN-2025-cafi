@@ -47,7 +47,7 @@
  ****************************************************************************/
 #include <Arduino.h>
 #include <RadioLib.h>
-#include <Preferences.h> 
+#include <Preferences.h>
 #include "SHT85.h"
 
 const LoRaWANBand_t Region = EU868;
@@ -56,8 +56,8 @@ Preferences store;
 void restoreNounce();
 void saveNounce();
 
-uint64_t joinEUI =   0x00000000;
-uint64_t devEUI  =   0x00000000;
+uint64_t joinEUI =   0x0000000000000000;
+uint64_t devEUI  =   0x0000000000000000;
 uint8_t appKey[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 uint8_t nwkKey[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
@@ -69,7 +69,7 @@ uint8_t nwkKey[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 SX1262 radio = new Module(SS, DIO0, RST_LoRa, BUSY_LoRa);
 LoRaWANNode node(&radio, &Region);
 
-SHT30 sht(0x44);
+SHT30 sht;
 
 void setup()
 {
@@ -147,11 +147,11 @@ void loop()
 
   if (state > 0) // state = 1 downlink en RX1, state = 2 downlink en RX2
   {
-    Serial.print(">Recibido DOWNLINK con " + String(downlinkSize) + " bytes en RX" + String(state));
+    Serial.print(">Recibido DOWNLINK con " + String(downlinkSize) + " bytes en RX" + String(state) + ":");
     for(int i = 0; i<downlinkSize; i++)
     {
       Serial.print(" ");
-      Serial.print(downlinkPayload[i],HEX);
+      Serial.print(downlinkPayload[i], HEX);
     } 
     Serial.println();
   }  
