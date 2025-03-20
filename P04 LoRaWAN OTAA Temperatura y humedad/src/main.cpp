@@ -69,7 +69,7 @@ uint8_t nwkKey[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 SX1262 radio = new Module(SS, DIO0, RST_LoRa, BUSY_LoRa);
 LoRaWANNode node(&radio, &Region);
 
-SHT30 sht;
+SHT30 sht(0x44);
 
 void setup()
 {
