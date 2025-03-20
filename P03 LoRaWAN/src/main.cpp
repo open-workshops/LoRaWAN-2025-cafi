@@ -19,14 +19,16 @@
  ****************************************************************************/
 #include <Arduino.h>
 #include <RadioLib.h> 
+//nonces
+#include <Preferences.h>
+Preferences store;
 
 const LoRaWANBand_t Region = EU868;
 
-uint32_t devAddr =        0x00000000;
-uint8_t fNwkSIntKey[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-uint8_t sNwkSIntKey[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-uint8_t nwkSEncKey[] =  { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-uint8_t appSKey[] =     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+uint64_t joinEUI = 0x0000000000000000;
+uint64_t devEUI = 0x70B3D57ED006EFE9;
+uint8_t appKey[] = { 0x3B, 0x43, 0xFE, 0x7B, 0xAB, 0xCD, 0x49, 0x9A, 0xE3, 0x85, 0xA0, 0x49, 0xE5, 0xA2, 0x30, 0xEC };
+uint8_t nwkKey[] = { 0x5E, 0xFF, 0x6E, 0xAB, 0xB0, 0x9C, 0x22, 0x52, 0xF5, 0x78, 0x0C, 0xBD, 0x58, 0x1B, 0x23, 0x09 };
 
 // Transceptor LoRa en la placa Heltec WiFi LoRa32 V3 3.1:
 // NSS pin:         SS = 8
@@ -36,26 +38,75 @@ uint8_t appSKey[] =     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 SX1262 radio = new Module(SS, DIO0, RST_LoRa, BUSY_LoRa);
 LoRaWANNode node(&radio, &Region);
 
+
+void restoreNounce()
+{
+  store.begin("radiolib");
+  if (store.isKey("nonces")) 
+  {
+    uint8_t buffer[RADIOLIB_LORAWAN_NONCES_BUF_SIZE];
+    store.getBytes("nonces", buffer, RADIOLIB_LORAWAN_NONCES_BUF_SIZE);
+    node.setBufferNonces(buffer);
+    uint16_t devNonces = ((uint16_t)buffer[9])<<8 | buffer[8];
+    uint32_t joinNonces = ((uint32_t)buffer[12])<<16 | ((uint32_t)buffer[11])<<8 | buffer[10];
+    Serial.println("devNonces:" + String(devNonces) + " joinNonces:"+ String(joinNonces));
+  }            
+}
+
+void saveNounce()
+{
+  uint8_t buffer[RADIOLIB_LORAWAN_NONCES_BUF_SIZE];
+  uint8_t *persist = node.getBufferNonces();
+  memcpy(buffer, persist, RADIOLIB_LORAWAN_NONCES_BUF_SIZE);
+  store.putBytes("nonces", buffer, RADIOLIB_LORAWAN_NONCES_BUF_SIZE);
+}
 void setup()
 {
   Serial.begin(115200);
   delay(20000);
-  Serial.println("Iniciando LoRaWAN ABP");
+  Serial.println("Iniciando LoRaWAN OTAA");
 
   radio.begin();
 
-  node.beginABP(devAddr, fNwkSIntKey, sNwkSIntKey, nwkSEncKey, appSKey);
+  node.beginOTAA(joinEUI, devEUI, nwkKey, appKey);
 
-  node.activateABP();
+  Serial.print("\nOTA Join...");
+  restoreNounce();
+  int16_t state = node.activateOTAA();
+  
+  if(state == RADIOLIB_LORAWAN_NEW_SESSION)
+  {
+    Serial.println("Join OK!");
+    saveNounce();
+  }
+  else
+  {
+    Serial.println("Join FAIL:( reiniciando\n");
+    saveNounce();
+    ESP.restart();
+  }
 }
 
 void loop()
 {
-  uint8_t *payload = (uint8_t *)"hola ABP";
-
+  uint8_t *payload = (uint8_t *)"hola OTAA";
+  uint8_t downlinkPayload[10];  
+  size_t  downlinkSize; 
+  
   Serial.println("Enviando uplink.");
+  
+  int16_t state = node.sendReceive(payload, 9, 1, downlinkPayload, &downlinkSize);
 
-  node.sendReceive(payload, 8);
+ if (state > 0) // state = 1 downlink en RX1, state = 2 downlink en RX2
+ {
+   Serial.print(">Recibido DOWNLINK con " + String(downlinkSize) + " bytes en RX" + String(state) + ":");
+   for(int i = 0; i<downlinkSize; i++)
+   {
+     Serial.print(" ");
+     Serial.print(downlinkPayload[i], HEX);
+   } 
+   Serial.println();
+ }  
   
   delay(15000);
 }
