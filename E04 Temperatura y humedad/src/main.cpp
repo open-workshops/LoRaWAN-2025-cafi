@@ -17,7 +17,7 @@
 #include <Arduino.h>
 #include "SHT85.h"
 
-SHT30 sht;
+SHT30 sht(0x44);
 
 void setup()
 {
