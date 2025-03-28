@@ -21,7 +21,7 @@
         temperature: bytes[0] / 5.0 - 12.0,
         humidity: bytes[1],
         co2: bytes[2] * 18 + 400,
-        puerta: bytes[i] ? "Bloqueada" : "Desbloqueada"
+        puerta: bytes[3] ? "Abierta" : "Cerrada"
       };
     }
 
@@ -42,6 +42,7 @@ uint64_t joinEUI =   0x0000000000000000;
 uint64_t devEUI  =   0x0000000000000000;
 uint8_t appKey[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 uint8_t nwkKey[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
 
 // Transceptor LoRa en la placa Heltec WiFi LoRa32 V3 3.1:
 // NSS pin:         SS = 8
